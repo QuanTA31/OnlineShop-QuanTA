@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/main :: layout('Feedbacks List', ~{::section})}" lang="vi">
+<body>
+<section>
+
+    <!-- Theo dac ta: Marketing chi duoc xem va doi status, khong co nut Add new -->
+    <h4 class="mb-3">Feedbacks List</h4>
+
+    <form class="card card-body mb-3" method="get" th:action="@{/mkt/feedbacks}">
+        <div class="row g-2 align-items-end">
+            <div class="col-md-3">
+                <label class="form-label small mb-1">Status</label>
+                <select class="form-select" name="status">
+                    <option value="">-- Tat ca --</option>
+                    <option th:each="s : ${statuses}"
+                            th:value="${s}" th:text="${s.label}"
+                            th:selected="${s == filter.status}"></option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label small mb-1">Product</label>
+                <select class="form-select" name="productId">
+                    <option value="">-- Tat ca --</option>
+                    <option th:each="p : ${products}"
+                            th:value="${p.id}" th:text="${p.title}"
+                            th:selected="${p.id == filter.productId}"></option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label small mb-1">Rated star</label>
+                <select class="form-select" name="ratedStar">
+                    <option value="">-- Tat ca --</option>
+                    <option th:each="s : ${stars}"
+                            th:value="${s}" th:text="${s} + ' sao'"
+                            th:selected="${s == filter.ratedStar}"></option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label small mb-1">Tim kiem</label>
+                <input type="text" class="form-control" name="keyword"
+                       th:value="${filter.keyword}" placeholder="Ten hoac noi dung">
+            </div>
+            <div class="col-md-2 d-flex gap-2">
+                <button class="btn btn-outline-primary w-100" type="submit">Loc</button>
+                <a class="btn btn-outline-secondary" th:href="@{/mkt/feedbacks}">Xoa</a>
+            </div>
+        </div>
+    </form>
+
+    <div class="card">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                <tr>
+                    <th th:replace="~{fragments/pagination :: sortable('id', 'ID', ${baseUrl}, ${sort}, ${dir}, ${filterParams})}"></th>
+                    <th th:replace="~{fragments/pagination :: sortable('customer.fullName', 'Customer', ${baseUrl}, ${sort}, ${dir}, ${filterParams})}"></th>
+                    <th th:replace="~{fragments/pagination :: sortable('product.title', 'Product', ${baseUrl}, ${sort}, ${dir}, ${filterParams})}"></th>
+                    <th th:replace="~{fragments/pagination :: sortable('ratedStar', 'Rated star', ${baseUrl}, ${sort}, ${dir}, ${filterParams})}"></th>
+                    <th>Feedback</th>
+                    <th th:replace="~{fragments/pagination :: sortable('status', 'Status', ${baseUrl}, ${sort}, ${dir}, ${filterParams})}"></th>
+                    <th class="text-end">Thao tac</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:if="${page.empty}">
+                    <td colspan="7" class="text-center text-muted py-4">Khong co feedback nao</td>
+                </tr>
+                <tr th:each="f : ${page.content}">
+                    <td th:text="${f.id}">1</td>
+                    <td th:text="${f.customerFullName}">Customer</td>
+                    <td th:text="${f.productName}">Product</td>
+                    <td>
+                        <span class="text-warning"
+                              th:text="${#strings.repeat('*', f.ratedStar)}">***</span>
+                        <span class="text-muted small" th:text="'(' + ${f.ratedStar} + ')'">(3)</span>
+                    </td>
+                    <td class="text-truncate" style="max-width:280px" th:text="${f.content}">content</td>
+                    <td>
+                        <span class="badge"
+                              th:classappend="${f.status.name() == 'APPROVED' ? 'text-bg-success' : (f.status.name() == 'REJECTED' ? 'text-bg-danger' : 'text-bg-warning')}"
+                              th:text="${f.status.label}">Status</span>
+                    </td>
+                    <td class="text-end text-nowrap">
+                        <a class="btn btn-sm btn-outline-primary"
+                           th:href="@{/mkt/feedbacks/{id}(id=${f.id})}">View</a>
+
+                        <form class="d-inline" method="post"
+                              th:action="@{/mkt/feedbacks/{id}/delete(id=${f.id})}"
+                              onsubmit="return confirm('Xoa feedback nay?');">
+                            <button class="btn btn-sm btn-outline-danger" type="submit">Delete</button>
+                        </form>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="card-footer bg-white">
+            <div th:replace="~{fragments/pagination :: pager(${page}, ${baseUrl}, ${queryParams})}"></div>
+        </div>
+    </div>
+
+</section>
+</body>
+</html>

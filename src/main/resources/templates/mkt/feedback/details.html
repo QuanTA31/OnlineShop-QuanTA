@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/main :: layout('Feedback Details', ~{::section})}" lang="vi">
+<body>
+<section>
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h4 class="mb-0">Feedback Details</h4>
+        <a class="btn btn-outline-secondary" th:href="@{/mkt/feedbacks}">&larr; Quay lai danh sach</a>
+    </div>
+
+    <div class="row g-3">
+        <div class="col-lg-8">
+            <div class="card card-body">
+                <!-- Toan bo thong tin duoi day chi de xem, khong sua duoc -->
+                <dl class="row mb-0">
+                    <dt class="col-sm-3">Customer</dt>
+                    <dd class="col-sm-9" th:text="${feedback.customerFullName}">Name</dd>
+
+                    <dt class="col-sm-3">Email</dt>
+                    <dd class="col-sm-9" th:text="${feedback.customerEmail}">email</dd>
+
+                    <dt class="col-sm-3">Mobile</dt>
+                    <dd class="col-sm-9" th:text="${feedback.customerMobile} ?: '-'">-</dd>
+
+                    <dt class="col-sm-3">Product</dt>
+                    <dd class="col-sm-9" th:text="${feedback.productName}">Product</dd>
+
+                    <dt class="col-sm-3">Rated star</dt>
+                    <dd class="col-sm-9">
+                        <span class="text-warning fs-5"
+                              th:text="${#strings.repeat('*', feedback.ratedStar)}">***</span>
+                        <span class="text-muted" th:text="'(' + ${feedback.ratedStar} + '/5)'">(3/5)</span>
+                    </dd>
+
+                    <dt class="col-sm-3">Created date</dt>
+                    <dd class="col-sm-9"
+                        th:text="${#temporals.format(feedback.createdDate, 'dd/MM/yyyy HH:mm')}">date</dd>
+
+                    <dt class="col-sm-3">Feedback</dt>
+                    <dd class="col-sm-9 mb-0" style="white-space: pre-wrap"
+                        th:text="${feedback.content}">content</dd>
+                </dl>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card card-body">
+                <h6 class="mb-3">Doi trang thai</h6>
+                <form method="post" th:action="@{/mkt/feedbacks/{id}/status(id=${feedback.id})}">
+                    <select class="form-select mb-3" name="status">
+                        <option th:each="s : ${statuses}"
+                                th:value="${s}" th:text="${s.label}"
+                                th:selected="${s == feedback.status}"></option>
+                    </select>
+                    <button class="btn btn-primary w-100" type="submit">Cap nhat status</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+</section>
+</body>
+</html>

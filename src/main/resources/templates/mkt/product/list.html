@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/main :: layout('Products List', ~{::section})}" lang="vi">
+<body>
+<section>
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h4 class="mb-0">Products List</h4>
+        <a class="btn btn-primary" th:href="@{/mkt/products/new}">+ Add new product</a>
+    </div>
+
+    <!-- Filter theo category, status + search theo title / brief info -->
+    <form class="card card-body mb-3" method="get" th:action="@{/mkt/products}">
+        <div class="row g-2 align-items-end">
+            <div class="col-md-3">
+                <label class="form-label small mb-1">Category</label>
+                <select class="form-select" name="categoryId">
+                    <option value="">-- Tat ca --</option>
+                    <option th:each="c : ${categories}"
+                            th:value="${c.id}"
+                            th:text="${c.value}"
+                            th:selected="${c.id == filter.categoryId}"></option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label small mb-1">Status</label>
+                <select class="form-select" name="status">
+                    <option value="">-- Tat ca --</option>
+                    <option th:each="s : ${statuses}"
+                            th:value="${s}"
+                            th:text="${s.label}"
+                            th:selected="${s == filter.status}"></option>
+                </select>
+            </div>
+            <div class="col-md-4">
+                <label class="form-label small mb-1">Tim theo title hoac brief info</label>
+                <input type="text" class="form-control" name="keyword"
+                       th:value="${filter.keyword}" placeholder="Nhap tu khoa...">
+            </div>
+            <div class="col-md-2 d-flex gap-2">
+                <button class="btn btn-outline-primary w-100" type="submit">Loc</button>
+                <a class="btn btn-outline-secondary" th:href="@{/mkt/products}">Xoa</a>
+            </div>
+        </div>
+    </form>
+
+    <div class="card">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                <tr>
+                    <th th:replace="~{fragments/pagination :: sortable('id', 'ID', ${baseUrl}, ${sort}, ${dir}, ${filterParams})}"></th>
+                    <th>Thumbnail</th>
+                    <th th:replace="~{fragments/pagination :: sortable('title', 'Title', ${baseUrl}, ${sort}, ${dir}, ${filterParams})}"></th>
+                    <th th:replace="~{fragments/pagination :: sortable('category.value', 'Category', ${baseUrl}, ${sort}, ${dir}, ${filterParams})}"></th>
+                    <th th:replace="~{fragments/pagination :: sortable('listPrice', 'List price', ${baseUrl}, ${sort}, ${dir}, ${filterParams})}"></th>
+                    <th th:replace="~{fragments/pagination :: sortable('salePrice', 'Sale price', ${baseUrl}, ${sort}, ${dir}, ${filterParams})}"></th>
+                    <th th:replace="~{fragments/pagination :: sortable('featured', 'Featured', ${baseUrl}, ${sort}, ${dir}, ${filterParams})}"></th>
+                    <th th:replace="~{fragments/pagination :: sortable('status', 'Status', ${baseUrl}, ${sort}, ${dir}, ${filterParams})}"></th>
+                    <th class="text-end">Thao tac</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:if="${page.empty}">
+                    <td colspan="9" class="text-center text-muted py-4">Khong co san pham nao</td>
+                </tr>
+                <tr th:each="p : ${page.content}">
+                    <td th:text="${p.id}">1</td>
+                    <td>
+                        <img th:if="${p.thumbnail}" th:src="${p.thumbnail}" alt=""
+                             style="width:48px;height:48px;object-fit:cover;border-radius:6px">
+                        <span th:unless="${p.thumbnail}" class="text-muted small">-</span>
+                    </td>
+                    <td>
+                        <a th:href="@{/mkt/products/{id}(id=${p.id})}" th:text="${p.title}">Title</a>
+                        <div class="small text-muted" th:text="${p.slug}">slug</div>
+                    </td>
+                    <td th:text="${p.categoryName}">Category</td>
+                    <td th:text="${#numbers.formatDecimal(p.listPrice, 0, 'COMMA', 0, 'POINT')}">0</td>
+                    <td th:text="${p.salePrice != null} ? ${#numbers.formatDecimal(p.salePrice, 0, 'COMMA', 0, 'POINT')} : '-'">0</td>
+                    <td>
+                        <span th:if="${p.featured}" class="badge text-bg-warning">Featured</span>
+                        <span th:unless="${p.featured}" class="text-muted">-</span>
+                    </td>
+                    <td>
+                        <span class="badge"
+                              th:classappend="${p.status.name() == 'ACTIVE'} ? 'text-bg-success' : 'text-bg-secondary'"
+                              th:text="${p.status.label}">Status</span>
+                    </td>
+                    <td class="text-end text-nowrap">
+                        <a class="btn btn-sm btn-outline-primary"
+                           th:href="@{/mkt/products/{id}(id=${p.id})}">View / Edit</a>
+
+                        <form class="d-inline" method="post"
+                              th:action="@{/mkt/products/{id}/toggle(id=${p.id})}">
+                            <button class="btn btn-sm btn-outline-secondary" type="submit"
+                                    th:text="${p.status.name() == 'ACTIVE'} ? 'Hide' : 'Show'">Hide</button>
+                        </form>
+
+                        <form class="d-inline" method="post"
+                              th:action="@{/mkt/products/{id}/delete(id=${p.id})}"
+                              onsubmit="return confirm('Xoa san pham nay?');">
+                            <button class="btn btn-sm btn-outline-danger" type="submit">Delete</button>
+                        </form>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="card-footer bg-white">
+            <div th:replace="~{fragments/pagination :: pager(${page}, ${baseUrl}, ${queryParams})}"></div>
+        </div>
+    </div>
+
+</section>
+</body>
+</html>

@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/main :: layout('Customer Details', ~{::section})}" lang="vi">
+<body>
+<section>
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h4 class="mb-0" th:text="${customer.id == null} ? 'Add new customer' : 'Customer Details'">
+            Customer Details
+        </h4>
+        <a class="btn btn-outline-secondary" th:href="@{/mkt/customers}">&larr; Quay lai danh sach</a>
+    </div>
+
+    <form method="post" th:action="@{/mkt/customers/save}" th:object="${customer}">
+        <input type="hidden" th:field="*{id}">
+
+        <div class="alert alert-danger" th:if="${#fields.hasGlobalErrors()}">
+            <div th:each="err : ${#fields.globalErrors()}" th:text="${err}"></div>
+        </div>
+
+        <div class="card card-body mb-3">
+            <div class="row g-3">
+
+                <div class="col-md-6">
+                    <label class="form-label">Full name <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control" th:field="*{fullName}"
+                           th:classappend="${#fields.hasErrors('fullName')} ? 'is-invalid'">
+                    <div class="invalid-feedback" th:errors="*{fullName}"></div>
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label">Gender <span class="text-danger">*</span></label>
+                    <select class="form-select" th:field="*{gender}"
+                            th:classappend="${#fields.hasErrors('gender')} ? 'is-invalid'">
+                        <option value="">-- Chon gender --</option>
+                        <option th:each="g : ${genders}" th:value="${g}" th:text="${g.label}"></option>
+                    </select>
+                    <div class="invalid-feedback" th:errors="*{gender}"></div>
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label">Email <span class="text-danger">*</span></label>
+                    <input type="email" class="form-control" th:field="*{email}"
+                           th:classappend="${#fields.hasErrors('email')} ? 'is-invalid'">
+                    <div class="invalid-feedback" th:errors="*{email}"></div>
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label">Mobile</label>
+                    <input type="text" class="form-control" th:field="*{mobile}"
+                           placeholder="0912345678"
+                           th:classappend="${#fields.hasErrors('mobile')} ? 'is-invalid'">
+                    <div class="invalid-feedback" th:errors="*{mobile}"></div>
+                </div>
+
+                <div class="col-12">
+                    <label class="form-label">Address</label>
+                    <textarea class="form-control" rows="2" th:field="*{address}"
+                              th:classappend="${#fields.hasErrors('address')} ? 'is-invalid'"></textarea>
+                    <div class="invalid-feedback" th:errors="*{address}"></div>
+                </div>
+
+                <div class="col-md-6" th:if="${customer.id != null}">
+                    <label class="form-label">Status</label>
+                    <input type="text" class="form-control" readonly
+                           th:value="${customer.status != null} ? ${customer.status.label} : ''">
+                    <div class="form-text">
+                        Status do he thong tu sinh theo lich su mua hang, khong sua truc tiep.
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="d-flex gap-2 mt-4">
+                <button class="btn btn-primary" type="submit">Luu</button>
+                <a class="btn btn-outline-secondary" th:href="@{/mkt/customers}">Huy</a>
+            </div>
+        </div>
+    </form>
+
+    <!-- Bang lich su thay doi theo dac ta man hinh Customer Details -->
+    <div class="card" th:if="${customer.id != null}">
+        <div class="card-header bg-white">
+            <strong>Lich su thay doi</strong>
+            <span class="text-muted small">(moi dong la gia tri truoc khi sua)</span>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-sm mb-0">
+                <thead class="table-light">
+                <tr>
+                    <th>Email</th>
+                    <th>Full name</th>
+                    <th>Gender</th>
+                    <th>Mobile</th>
+                    <th>Address</th>
+                    <th>Updated by</th>
+                    <th>Updated date</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:if="${customer.histories == null or customer.histories.isEmpty()}">
+                    <td colspan="7" class="text-center text-muted py-3">Chua co thay doi nao</td>
+                </tr>
+                <tr th:each="h : ${customer.histories}">
+                    <td th:text="${h.email}">email</td>
+                    <td th:text="${h.fullName}">name</td>
+                    <td th:text="${h.gender != null} ? ${h.gender.label} : '-'">-</td>
+                    <td th:text="${h.mobile} ?: '-'">-</td>
+                    <td th:text="${h.address} ?: '-'">-</td>
+                    <td th:text="${h.updatedBy}">by</td>
+                    <td th:text="${#temporals.format(h.updatedDate, 'dd/MM/yyyy HH:mm')}">date</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</section>
+</body>
+</html>

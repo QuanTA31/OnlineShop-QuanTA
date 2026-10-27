@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/main :: layout('Customers List', ~{::section})}" lang="vi">
+<body>
+<section>
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h4 class="mb-0">Customers List</h4>
+        <a class="btn btn-primary" th:href="@{/mkt/customers/new}">+ Add new customer</a>
+    </div>
+
+    <!-- Filter theo status + search theo full name / email / mobile -->
+    <form class="card card-body mb-3" method="get" th:action="@{/mkt/customers}">
+        <div class="row g-2 align-items-end">
+            <div class="col-md-3">
+                <label class="form-label small mb-1">Status</label>
+                <select class="form-select" name="status">
+                    <option value="">-- Tat ca --</option>
+                    <option th:each="s : ${statuses}"
+                            th:value="${s}" th:text="${s.label}"
+                            th:selected="${s == filter.status}"></option>
+                </select>
+            </div>
+            <div class="col-md-6">
+                <label class="form-label small mb-1">Tim theo full name, email hoac mobile</label>
+                <input type="text" class="form-control" name="keyword"
+                       th:value="${filter.keyword}" placeholder="Nhap tu khoa...">
+            </div>
+            <div class="col-md-3 d-flex gap-2">
+                <button class="btn btn-outline-primary w-100" type="submit">Loc</button>
+                <a class="btn btn-outline-secondary" th:href="@{/mkt/customers}">Xoa</a>
+            </div>
+        </div>
+    </form>
+
+    <div class="card">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                <tr>
+                    <th th:replace="~{fragments/pagination :: sortable('id', 'ID', ${baseUrl}, ${sort}, ${dir}, ${filterParams})}"></th>
+                    <th th:replace="~{fragments/pagination :: sortable('fullName', 'Full name', ${baseUrl}, ${sort}, ${dir}, ${filterParams})}"></th>
+                    <th>Gender</th>
+                    <th th:replace="~{fragments/pagination :: sortable('email', 'Email', ${baseUrl}, ${sort}, ${dir}, ${filterParams})}"></th>
+                    <th th:replace="~{fragments/pagination :: sortable('mobile', 'Mobile', ${baseUrl}, ${sort}, ${dir}, ${filterParams})}"></th>
+                    <th th:replace="~{fragments/pagination :: sortable('status', 'Status', ${baseUrl}, ${sort}, ${dir}, ${filterParams})}"></th>
+                    <th class="text-end">Thao tac</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:if="${page.empty}">
+                    <td colspan="7" class="text-center text-muted py-4">Khong co customer nao</td>
+                </tr>
+                <tr th:each="c : ${page.content}">
+                    <td th:text="${c.id}">1</td>
+                    <td>
+                        <a th:href="@{/mkt/customers/{id}(id=${c.id})}" th:text="${c.fullName}">Name</a>
+                    </td>
+                    <td th:text="${c.gender != null} ? ${c.gender.label} : '-'">-</td>
+                    <td th:text="${c.email}">email</td>
+                    <td th:text="${c.mobile} ?: '-'">-</td>
+                    <td>
+                        <span class="badge"
+                              th:classappend="${c.status.name() == 'CUSTOMER' ? 'text-bg-success' : (c.status.name() == 'POTENTIAL' ? 'text-bg-info' : 'text-bg-secondary')}"
+                              th:text="${c.status.label}">Status</span>
+                    </td>
+                    <td class="text-end text-nowrap">
+                        <a class="btn btn-sm btn-outline-primary"
+                           th:href="@{/mkt/customers/{id}(id=${c.id})}">View / Edit</a>
+
+                        <form class="d-inline" method="post"
+                              th:action="@{/mkt/customers/{id}/delete(id=${c.id})}"
+                              onsubmit="return confirm('Xoa customer nay?');">
+                            <button class="btn btn-sm btn-outline-danger" type="submit">Delete</button>
+                        </form>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="card-footer bg-white">
+            <div th:replace="~{fragments/pagination :: pager(${page}, ${baseUrl}, ${queryParams})}"></div>
+        </div>
+    </div>
+
+</section>
+</body>
+</html>

@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="vi">
+<body>
+
+<!--
+  Fragment phan trang dung chung.
+  page        : doi tuong Page<?> tu Spring Data
+  baseUrl     : vi du /mkt/products
+  queryParams : chuoi "&key=value..." de giu nguyen filter + sort khi doi trang
+-->
+<nav th:fragment="pager(page, baseUrl, queryParams)" th:if="${page.totalPages > 0}"
+     class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+
+    <small class="text-muted">
+        Hien thi <span th:text="${page.numberOfElements}">0</span>
+        / tong <span th:text="${page.totalElements}">0</span> ban ghi
+        (trang <span th:text="${page.number + 1}">1</span>
+        / <span th:text="${page.totalPages}">1</span>)
+    </small>
+
+    <ul class="pagination pagination-sm mb-0">
+        <li class="page-item" th:classappend="${page.first} ? 'disabled'">
+            <a class="page-link"
+               th:href="@{${baseUrl}} + '?page=' + ${page.number - 1} + ${queryParams}">Truoc</a>
+        </li>
+
+        <li class="page-item"
+            th:each="i : ${#numbers.sequence(0, page.totalPages - 1)}"
+            th:classappend="${i == page.number} ? 'active'">
+            <a class="page-link"
+               th:href="@{${baseUrl}} + '?page=' + ${i} + ${queryParams}"
+               th:text="${i + 1}">1</a>
+        </li>
+
+        <li class="page-item" th:classappend="${page.last} ? 'disabled'">
+            <a class="page-link"
+               th:href="@{${baseUrl}} + '?page=' + ${page.number + 1} + ${queryParams}">Sau</a>
+        </li>
+    </ul>
+</nav>
+
+<!--
+  Fragment tieu de cot co the sap xep.
+  column      : ten thuoc tinh dung de sort, vi du "title"
+  label       : chu hien thi
+  sort / dir  : trang thai sap xep hien tai
+  filterParams: chuoi "&key=value..." cua rieng phan filter (khong gom sort/dir)
+-->
+<th th:fragment="sortable(column, label, baseUrl, sort, dir, filterParams)">
+    <a class="sort-link"
+       th:with="nextDir=${column == sort and dir == 'asc'} ? 'desc' : 'asc'"
+       th:href="@{${baseUrl}} + '?sort=' + ${column} + '&dir=' + ${nextDir} + ${filterParams}">
+        <span th:text="${label}">Cot</span>
+        <span th:if="${column == sort}" th:text="${dir == 'asc'} ? '▲' : '▼'"></span>
+    </a>
+</th>
+
+</body>
+</html>
